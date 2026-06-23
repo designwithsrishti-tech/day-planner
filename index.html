@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day Planner — Construction Team</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F3EE;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE7;
+  --border: #E2DDD6;
+  --border2: #D1CBC1;
+  --text: #1A1714;
+  --text2: #5C5650;
+  --text3: #9A948C;
+  --green: #1D6B4E;
+  --green-light: #E4F0EB;
+  --green-mid: #2E8B68;
+  --amber: #8B5E00;
+  --amber-light: #FDF3DC;
+  --red: #8B2020;
+  --red-light: #FCEAEA;
+  --blue: #1A3F6F;
+  --blue-light: #E6EEF8;
+  --purple: #3D2C7E;
+  --purple-light: #EEEAFC;
+  --accent: #C5561A;
+  --accent-light: #FAF0EB;
+  --radius: 8px;
+  --radius-sm: 5px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+/* ── NAV ── */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:28px;height:28px;background:var(--text);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.nav-logo svg{width:16px;height:16px;fill:var(--bg)}
+.nav-title{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.nav-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.nav-tabs{display:flex;gap:2px;background:var(--surface2);border-radius:var(--radius-sm);padding:3px}
+.nav-tab{font-size:12px;padding:5px 14px;border-radius:4px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .15s}
+.nav-tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.date-chip{font-size:11px;color:var(--text3);background:var(--surface2);padding:4px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace}
+/* ── VIEWS ── */
+.view{display:none;animation:fadeIn .2s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+/* ── PLANNER VIEW ── */
+.planner{max-width:720px;margin:0 auto;padding:28px 20px}
+.planner-header{margin-bottom:24px}
+.plan-eyebrow{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.plan-title{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+.plan-desc{font-size:13px;color:var(--text2);margin-top:4px}
+.role-select-row{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.role-label{font-size:12px;color:var(--text3)}
+select.role-sel{font-size:13px;padding:6px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Inter',sans-serif;cursor:pointer}
+.name-input{font-size:13px;padding:6px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Inter',sans-serif;width:180px}
+.name-input::placeholder{color:var(--text3)}
+/* sections */
+.p-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
+.p-sec-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px}
+.p-sec-title{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
+.p-sec-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.p-sec-hint{font-size:11px;color:var(--text3);margin-top:2px;font-style:italic}
+textarea.p-ta{width:100%;font-size:13px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text);resize:none;line-height:1.6;font-family:'Inter',sans-serif}
+textarea.p-ta::placeholder{color:var(--text3)}
+textarea.p-ta:focus{outline:none;border-color:var(--border2);background:var(--surface)}
+/* top 3 */
+.top3-list{display:flex;flex-direction:column;gap:8px}
+.top3-item{display:grid;grid-template-columns:22px 1fr 90px;gap:8px;align-items:center}
+.t3-num{font-size:11px;font-weight:600;color:var(--text3);font-family:'JetBrains Mono',monospace;text-align:center}
+.t3-input{font-size:13px;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Inter',sans-serif;width:100%}
+.t3-input::placeholder{color:var(--text3)}
+.t3-input:focus{outline:none;border-color:var(--border2);background:var(--surface)}
+.t3-tag{font-size:11px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Inter',sans-serif;width:100%;cursor:pointer}
+/* time blocks */
+.block-row{display:grid;grid-template-columns:80px 1fr 90px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.block-row:last-child{border-bottom:none;padding-bottom:0}
+.block-time{font-size:11px;font-weight:500;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.block-inp{font-size:13px;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Inter',sans-serif;width:100%}
+.block-inp::placeholder{color:var(--text3)}
+.block-inp:focus{outline:none;border-color:var(--border2);background:var(--surface)}
+.energy-sel{display:flex;gap:4px}
+.e-dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);background:transparent;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.e-dot:hover{border-color:var(--border2)}
+.e-dot.on-focus{background:var(--green);border-color:var(--green);color:#fff}
+.e-dot.on-meet{background:var(--amber);border-color:var(--amber);color:#fff}
+.e-dot.on-react{background:var(--red);border-color:var(--red);color:#fff}
+/* protect */
+.prot-grid{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.prot-chip{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.prot-chip:hover{border-color:var(--border2)}
+.prot-chip.sel{background:var(--green-light);color:var(--green);border-color:var(--green)}
+/* carry forward */
+.carry-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.carry-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.carry-row:last-child{border-bottom:none}
+.carry-cb{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;transition:all .15s}
+.carry-cb.on{background:var(--green);border-color:var(--green)}
+.carry-inp{flex:1;font-size:13px;border:none;background:transparent;color:var(--text2);font-family:'Inter',sans-serif;outline:none}
+.carry-inp::placeholder{color:var(--text3)}
+.carry-inp.done{text-decoration:line-through;color:var(--text3)}
+.carry-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 2px;line-height:1}
+.carry-del:hover{color:var(--red)}
+.add-row{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);cursor:pointer;background:transparent;border:none;font-family:'Inter',sans-serif;padding:0}
+.add-row:hover{color:var(--text2)}
+/* checkin */
+.checkin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.checkin-lbl{font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.energy-row{display:flex;gap:6px}
+.en-btn{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.en-btn.sel-low{background:var(--red-light);color:var(--red);border-color:var(--red)}
+.en-btn.sel-mid{background:var(--amber-light);color:var(--amber);border-color:var(--amber)}
+.en-btn.sel-hi{background:var(--green-light);color:var(--green);border-color:var(--green)}
+.flag-inp{font-size:13px;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Inter',sans-serif;width:100%}
+.flag-inp::placeholder{color:var(--text3)}
+.flag-inp:focus{outline:none;border-color:var(--border2)}
+/* save bar */
+.save-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.save-note{font-size:12px;color:var(--text3)}
+.save-actions{display:flex;gap:8px;align-items:center}
+.btn-save{font-size:13px;padding:8px 20px;border-radius:var(--radius-sm);border:1px solid var(--green);background:var(--green);color:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .15s}
+.btn-save:hover{background:var(--green-mid)}
+.btn-share{font-size:13px;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .15s}
+.btn-share:hover{border-color:var(--border2);background:var(--surface)}
+.saved-toast{font-size:12px;color:var(--green);background:var(--green-light);padding:5px 12px;border-radius:20px;display:none;align-items:center;gap:4px}
+/* ── DASHBOARD VIEW ── */
+.dashboard{max-width:960px;margin:0 auto;padding:28px 20px}
+.db-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.db-title-block .db-eyebrow{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.db-title-block h2{font-size:20px;font-weight:600;letter-spacing:-.02em}
+.db-title-block p{font-size:13px;color:var(--text2);margin-top:2px}
+.db-controls{display:flex;gap:8px;flex-wrap:wrap}
+.db-filter{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.db-filter.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+/* stat cards */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.stat-val{font-size:24px;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--text);letter-spacing:-.02em}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:4px}
+/* team grid */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px}
+.member-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow .15s}
+.member-card:hover{box-shadow:var(--shadow-md)}
+.mc-header{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
+.mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mc-name{font-size:13px;font-weight:600}
+.mc-role{font-size:11px;color:var(--text3);margin-top:1px}
+.mc-energy{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.mc-body{padding:12px 16px}
+.mc-priorities{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.mc-priority{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--text2)}
+.mc-p-num{font-size:10px;font-weight:600;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px;width:12px;flex-shrink:0}
+.mc-progress{margin-bottom:8px}
+.mc-prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px}
+.mc-prog-bar{height:4px;border-radius:2px;background:var(--border);overflow:hidden}
+.mc-prog-fill{height:100%;border-radius:2px;background:var(--green);transition:width .4s}
+.mc-flag{font-size:11px;color:var(--amber);background:var(--amber-light);padding:4px 8px;border-radius:4px;margin-top:6px;display:flex;align-items:flex-start;gap:4px}
+.mc-protect{font-size:11px;color:var(--text3);margin-top:6px;display:flex;align-items:center;gap:4px}
+/* no-plan state */
+.no-plan{font-size:12px;color:var(--text3);font-style:italic;padding:8px 0}
+/* add member demo */
+.add-member-card{background:transparent;border:1.5px dashed var(--border);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .15s;color:var(--text3)}
+.add-member-card:hover{border-color:var(--border2);color:var(--text2)}
+/* priority tags */
+.tag{display:inline-flex;font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px}
+.tag-design{background:var(--blue-light);color:var(--blue)}
+.tag-build{background:var(--amber-light);color:var(--amber)}
+.tag-client{background:var(--purple-light);color:var(--purple)}
+.tag-team{background:var(--green-light);color:var(--green)}
+.tag-admin{background:var(--surface2);color:var(--text2)}
+.tag-risk{background:var(--red-light);color:var(--red)}
+/* energy badges */
+.en-good{background:var(--green-light);color:var(--green)}
+.en-okay{background:var(--amber-light);color:var(--amber)}
+.en-low{background:var(--red-light);color:var(--red)}
+.en-none{background:var(--surface2);color:var(--text3)}
+/* modal / detail */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:200;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.detail-modal{background:var(--surface);border-radius:var(--radius);width:500px;max-width:95vw;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-md);padding:24px}
+.dm-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.dm-close{background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;line-height:1;padding:0}
+.dm-close:hover{color:var(--text)}
+.dm-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.dm-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.dm-lbl{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.dm-block-row{display:flex;gap:8px;align-items:center;padding:5px 0;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)}
+.dm-block-row:last-child{border-bottom:none}
+.dm-block-time{width:72px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);flex-shrink:0}
+/* responsive */
+@media(max-width:600px){
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .checkin-grid{grid-template-columns:1fr}
+  .block-row{grid-template-columns:68px 1fr;gap:6px}
+  .energy-sel{grid-column:1/-1;margin-top:4px}
+  .top3-item{grid-template-columns:22px 1fr}
+  .t3-tag{display:none}
+  .nav{padding:10px 14px}
+  .planner,.dashboard{padding:16px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <svg viewBox="0 0 16 16"><rect x="2" y="10" width="12" height="4" rx="1"/><rect x="5" y="6" width="6" height="4" rx="1"/><rect x="7" y="2" width="2" height="5" rx="1"/></svg>
+    </div>
+    <div>
+      <div class="nav-title">Day Planner</div>
+      <div class="nav-sub">Construction team</div>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchView('planner',this)">Option 1 — My plan</button>
+    <button class="nav-tab" onclick="switchView('dashboard',this)">Team dashboard</button>
+  </div>
+  <div class="nav-right">
+    <span class="date-chip" id="nav-date"></span>
+  </div>
+</nav>
+
+<!-- PLANNER VIEW -->
+<div class="view active" id="view-planner">
+<div class="planner">
+  <div class="planner-header">
+    <div class="plan-eyebrow">Fill this in the evening before</div>
+    <div class="plan-title">Plan tomorrow</div>
+    <div class="plan-desc">Takes 5 minutes. Entirely yours — helps you show up organised, not overwhelmed.</div>
+    <div class="role-select-row">
+      <span class="role-label">I am</span>
+      <input class="name-input" id="plan-name" placeholder="Your name">
+      <select class="role-sel" id="plan-role">
+        <option value="pm">Project Manager</option>
+        <option value="dih">Design Integration Head</option>
+        <option value="bih">Build Integration Head</option>
+        <option value="eng">Site Engineer</option>
+        <option value="fore">Foreman</option>
+        <option value="arch">Architect</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- BRAIN DUMP -->
+  <div class="p-section">
+    <div class="p-sec-head">
+      <div>
+        <div class="p-sec-title">
+          <div class="p-sec-icon" style="background:#F0EDE7">🧠</div>
+          Brain dump — clear your head first
+        </div>
+        <div class="p-sec-hint">Private. Not shared. Just get it out of your head.</div>
+      </div>
+    </div>
+    <textarea class="p-ta" id="brain-dump" rows="3" placeholder="Whatever's sitting in your head right now — worries, half-finished thoughts, things you're afraid you'll forget, what's bugging you. Dump it here."></textarea>
+  </div>
+
+  <!-- TOP 3 -->
+  <div class="p-section">
+    <div class="p-sec-head">
+      <div>
+        <div class="p-sec-title">
+          <div class="p-sec-icon" style="background:#E4F0EB">🎯</div>
+          Three things that would make tomorrow a good day
+        </div>
+        <div class="p-sec-hint">Not a full to-do list. Just what actually matters.</div>
+      </div>
+    </div>
+    <div class="top3-list">
+      <div class="top3-item">
+        <span class="t3-num">01</span>
+        <input class="t3-input" id="t1" placeholder="The one thing you must not leave undone">
+        <select class="t3-tag" id="tc1"><option value="">tag</option><option>design</option><option>build</option><option>client</option><option>team</option><option>admin</option><option>risk</option></select>
+      </div>
+      <div class="top3-item">
+        <span class="t3-num">02</span>
+        <input class="t3-input" id="t2" placeholder="Second priority">
+        <select class="t3-tag" id="tc2"><option value="">tag</option><option>design</option><option>build</option><option>client</option><option>team</option><option>admin</option><option>risk</option></select>
+      </div>
+      <div class="top3-item">
+        <span class="t3-num">03</span>
+        <input class="t3-input" id="t3" placeholder="Third priority">
+        <select class="t3-tag" id="tc3"><option value="">tag</option><option>design</option><option>build</option><option>client</option><option>team</option><option>admin</option><option>risk</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIME BLOCKS -->
+  <div class="p-section">
+    <div class="p-sec-head">
+      <div>
+        <div class="p-sec-title">
+          <div class="p-sec-icon" style="background:#E6EEF8">🕐</div>
+          Rough time blocks
+        </div>
+        <div class="p-sec-hint">Mark energy type: <span style="color:var(--green);font-weight:500">● focused</span> &nbsp;<span style="color:var(--amber);font-weight:500">● meetings</span> &nbsp;<span style="color:var(--red);font-weight:500">● reactive</span></div>
+      </div>
+    </div>
+    <div id="block-grid"></div>
+  </div>
+
+  <!-- PROTECT -->
+  <div class="p-section">
+    <div class="p-sec-head">
+      <div>
+        <div class="p-sec-title">
+          <div class="p-sec-icon" style="background:#FAF0EB">🛡️</div>
+          Protect one thing tomorrow
+        </div>
+        <div class="p-sec-hint">Non-negotiable for yourself — not the project, you.</div>
+      </div>
+    </div>
+    <div class="prot-grid">
+      <button class="prot-chip" onclick="togProt(this)">Lunch break</button>
+      <button class="prot-chip" onclick="togProt(this)">Deep work block</button>
+      <button class="prot-chip" onclick="togProt(this)">Leave on time</button>
+      <button class="prot-chip" onclick="togProt(this)">No meetings before 9am</button>
+      <button class="prot-chip" onclick="togProt(this)">Buffer for emergencies</button>
+      <button class="prot-chip" onclick="togProt(this)">EOD review time</button>
+    </div>
+    <input class="t3-input" style="width:100%" id="prot-custom" placeholder="Or write your own…">
+  </div>
+
+  <!-- CARRY FORWARD -->
+  <div class="p-section">
+    <div class="p-sec-head">
+      <div>
+        <div class="p-sec-title">
+          <div class="p-sec-icon" style="background:#F0EDE7">↩️</div>
+          Carried forward from today
+        </div>
+        <div class="p-sec-hint">Things that didn't happen today. Park them here consciously.</div>
+      </div>
+    </div>
+    <div class="carry-list" id="carry-list"></div>
+    <button class="add-row" onclick="addCarry()">＋ &nbsp;Add item</button>
+  </div>
+
+  <!-- CHECK-IN -->
+  <div class="p-section">
+    <div class="p-sec-head">
+      <div>
+        <div class="p-sec-title">
+          <div class="p-sec-icon" style="background:#EEEAFC">💬</div>
+          Honest check-in
+        </div>
+        <div class="p-sec-hint">The "flag to team" field is the only thing that surfaces on the dashboard.</div>
+      </div>
+    </div>
+    <div class="checkin-grid">
+      <div>
+        <div class="checkin-lbl">Energy going into tomorrow</div>
+        <div class="energy-row">
+          <button class="en-btn" id="en-low" onclick="setEnergy('low')">Drained</button>
+          <button class="en-btn" id="en-mid" onclick="setEnergy('mid')">Okay</button>
+          <button class="en-btn" id="en-hi" onclick="setEnergy('hi')">Good</button>
+        </div>
+      </div>
+      <div>
+        <div class="checkin-lbl">Flag to team <span style="font-weight:400;color:var(--text3)">(shown on dashboard)</span></div>
+        <input class="flag-inp" id="flag-team" placeholder="e.g. running slow tomorrow AM, site visit extended">
+      </div>
+    </div>
+    <textarea class="p-ta" id="one-line" rows="2" placeholder="Optional personal note — just for you. How's the load feeling going into tomorrow?"></textarea>
+  </div>
+
+  <!-- SAVE BAR -->
+  <div class="save-bar">
+    <div class="save-note">Your brain dump and personal note are private. Only your name, priorities, and team flag appear on the dashboard.</div>
+    <div class="save-actions">
+      <span class="saved-toast" id="saved-toast">✓ &nbsp;Saved to dashboard</span>
+      <button class="btn-share" onclick="switchView('dashboard', document.querySelectorAll('.nav-tab')[1])">View team dashboard</button>
+      <button class="btn-save" onclick="savePlan()">Save &amp; share plan</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- DASHBOARD VIEW -->
+<div class="view" id="view-dashboard">
+<div class="dashboard">
+  <div class="db-header">
+    <div class="db-title-block">
+      <div class="db-eyebrow">Team overview</div>
+      <h2>Tomorrow's plan</h2>
+      <p>What the team is focused on. Updated as plans come in.</p>
+    </div>
+    <div class="db-controls">
+      <button class="db-filter active" onclick="dbFilter('all',this)">All</button>
+      <button class="db-filter" onclick="dbFilter('drained',this)">⚠ Drained</button>
+      <button class="db-filter" onclick="dbFilter('flagged',this)">🚩 Flagged</button>
+      <button class="db-filter" onclick="dbFilter('risk',this)">Risk</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stat-row" id="db-stats"></div>
+
+  <!-- TEAM GRID -->
+  <div class="team-grid" id="db-team-grid"></div>
+
+</div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-modal" id="detail-modal"></div>
+</div>
+
+<script>
+// ── DATES ──
+const today = new Date();
+const tomorrow = new Date(); tomorrow.setDate(today.getDate()+1);
+const fmtDate = d => d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+document.getElementById('nav-date').textContent = 'Tomorrow: '+fmtDate(tomorrow);
+
+// ── STATE ──
+let energy = '';
+let protSel = new Set();
+let carryItems = [];
+let carryNext = 0;
+let dbFilterMode = 'all';
+
+// seed plans so dashboard isn't empty
+let teamPlans = [
+  {name:'Arjun Mehta',role:'Project Manager',t1:'Finalise revised cost estimate for Block C',t1tag:'admin',t2:'Client call — foundation scope sign-off',t2tag:'client',t3:'Review updated structural drawings',t3tag:'design',blocks:[{t:'7–9 am',v:'Site safety briefing + subcontractor catch-up',e:'meet'},{t:'9–11 am',v:'Cost estimate finalisation (deep work)',e:'focus'},{t:'11–1 pm',v:'Client call + follow-up notes',e:'meet'},{t:'1–2 pm',v:'Lunch',e:''},{t:'2–4 pm',v:'Drawing review with structural team',e:'focus'},{t:'4–6 pm',v:'EOD report + team comms',e:'react'}],protect:'Leave on time',carry:['Send revised procurement list to vendor'],flag:'Client call may run late — may need 30 min buffer post 12pm',energyLevel:'hi',pct:0},
+  {name:'Sneha Pillai',role:'Design Integration Head',t1:'Resolve MEP clash on Level 2 drawings',t1tag:'design',t2:'Coordinate with architect on atrium revisions',t2tag:'design',t3:'Sign off rebar shop drawings',t3tag:'build',blocks:[{t:'7–9 am',v:'Drawing review — solo',e:'focus'},{t:'9–11 am',v:'MEP coordination meeting',e:'meet'},{t:'11–1 pm',v:'Atrium revision session with architect',e:'meet'},{t:'1–2 pm',v:'Lunch (protected)',e:''},{t:'2–4 pm',v:'Rebar shop drawing review',e:'focus'},{t:'4–6 pm',v:'Respond to RFIs',e:'react'}],protect:'Lunch break',carry:['Chase GFC drawings from consultant'],flag:'',energyLevel:'okay',pct:0},
+  {name:'Ravi Krishnan',role:'Build Integration Head',t1:'Inspect formwork on Levels 3–4',t1tag:'build',t2:'Concrete pour schedule confirmation',t2tag:'build',t3:'Labour allocation for next week',t3tag:'team',blocks:[{t:'7–9 am',v:'Site walk + formwork inspection',e:'focus'},{t:'9–11 am',v:'Pour schedule confirmation with contractor',e:'meet'},{t:'11–1 pm',v:'Site — reactive',e:'react'},{t:'1–2 pm',v:'Lunch',e:''},{t:'2–4 pm',v:'Labour planning + headcount review',e:'focus'},{t:'4–6 pm',v:'Safety incident log + daily report',e:'admin'}],protect:'Buffer for site emergencies',carry:['Crane certification follow-up','Bar bending schedule approval'],flag:'Formwork supplier delay possible — may affect pour Thursday',energyLevel:'low',pct:0},
+  {name:'Priya Nair',role:'Site Engineer',t1:'Concrete cube test sampling — Block B',t1tag:'build',t2:'Update QC register for Level 2 slab',t2tag:'admin',t3:'Handover snag list to finishing team',t3tag:'build',blocks:[{t:'7–9 am',v:'Morning inspection rounds',e:'react'},{t:'9–11 am',v:'Cube test sampling + documentation',e:'focus'},{t:'11–1 pm',v:'QC register update',e:'focus'},{t:'1–2 pm',v:'Lunch',e:''},{t:'2–4 pm',v:'Snag list walkthrough with finishing team',e:'meet'},{t:'4–6 pm',v:'Site diary + report',e:'admin'}],protect:'No meetings before 9am',carry:[],flag:'',energyLevel:'hi',pct:0},
+];
+
+// ── VIEW SWITCH ──
+function switchView(id, btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='dashboard') renderDashboard();
+}
+
+// ── TIME BLOCKS ──
+const blockDefs = [
+  {label:'7–9 am',ph:'Morning — briefings, site arrival, catching up'},
+  {label:'9–11 am',ph:'Deep work or critical meetings'},
+  {label:'11–1 pm',ph:'Coordination, approvals, reviews'},
+  {label:'1–2 pm',ph:'Lunch / buffer — protect this'},
+  {label:'2–4 pm',ph:'Site time, focused work, or field visits'},
+  {label:'4–6 pm',ph:'Wrap-up, comms, EOD review'},
+];
+const bg = document.getElementById('block-grid');
+const blockValues = {};
+const blockEnergy = {};
+blockDefs.forEach((b,i)=>{
+  blockValues[i]=''; blockEnergy[i]='';
+  const row = document.createElement('div');
+  row.className='block-row';
+  row.innerHTML=`<span class="block-time">${b.label}</span>
+    <input class="block-inp" id="bl${i}" placeholder="${b.ph}" oninput="blockValues[${i}]=this.value">
+    <div class="energy-sel">
+      <button class="e-dot" title="Focused" onclick="setBlockE(${i},'focus',this)">●</button>
+      <button class="e-dot" title="Meetings" onclick="setBlockE(${i},'meet',this)">●</button>
+      <button class="e-dot" title="Reactive" onclick="setBlockE(${i},'react',this)">●</button>
+    </div>`;
+  bg.appendChild(row);
+});
+function setBlockE(i,type,el){
+  const dots=document.querySelectorAll(`#bl${i}`).item(0).parentElement.querySelector('.energy-sel').querySelectorAll('.e-dot');
+  dots.forEach(d=>{d.classList.remove('on-focus','on-meet','on-react')});
+  el.classList.add('on-'+type);
+  blockEnergy[i]=type;
+}
+
+// ── PROTECT ──
+function togProt(btn){
+  const t=btn.textContent.trim();
+  if(protSel.has(t)){protSel.delete(t);btn.classList.remove('sel');}
+  else{protSel.add(t);btn.classList.add('sel');}
+}
+
+// ── CARRY FORWARD ──
+function addCarry(text=''){
+  const id='c'+(carryNext++);
+  carryItems.push({id,text,done:false});
+  renderCarry();
+}
+function renderCarry(){
+  const list=document.getElementById('carry-list');
+  list.innerHTML=carryItems.map(c=>`
+    <div class="carry-row" id="${c.id}">
+      <div class="carry-cb${c.done?' on':''}" onclick="togCarry('${c.id}')">${c.done?'✓':''}</div>
+      <input class="carry-inp${c.done?' done':''}" value="${c.text}" placeholder="What didn't get done today?" onchange="updateCarry('${c.id}',this.value)">
+      <button class="carry-del" onclick="removeCarry('${c.id}')" aria-label="Remove">×</button>
+    </div>`).join('');
+}
+function togCarry(id){carryItems=carryItems.map(c=>c.id===id?{...c,done:!c.done}:c);renderCarry();}
+function updateCarry(id,val){carryItems=carryItems.map(c=>c.id===id?{...c,text:val}:c);}
+function removeCarry(id){carryItems=carryItems.filter(c=>c.id!==id);renderCarry();}
+
+// ── ENERGY ──
+function setEnergy(e){
+  energy=e;
+  document.getElementById('en-low').className='en-btn'+(e==='low'?' sel-low':'');
+  document.getElementById('en-mid').className='en-btn'+(e==='mid'?' sel-mid':'');
+  document.getElementById('en-hi').className='en-btn'+(e==='hi'?' sel-hi':'');
+}
+
+// ── SAVE ──
+function savePlan(){
+  const name=document.getElementById('plan-name').value.trim()||'Unnamed';
+  const roleEl=document.getElementById('plan-role');
+  const roleMap={pm:'Project Manager',dih:'Design Integration Head',bih:'Build Integration Head',eng:'Site Engineer',fore:'Foreman',arch:'Architect',other:'Other'};
+  const role=roleMap[roleEl.value]||roleEl.value;
+  const blocks=blockDefs.map((b,i)=>({t:b.label,v:blockValues[i]||'',e:blockEnergy[i]||''}));
+  const protect=[...protSel].join(', ')||(document.getElementById('prot-custom').value.trim())||'';
+  const carry=carryItems.filter(c=>c.text.trim()).map(c=>c.text.trim());
+  const flag=document.getElementById('flag-team').value.trim();
+  const plan={name,role,t1:document.getElementById('t1').value.trim(),t1tag:document.getElementById('tc1').value,t2:document.getElementById('t2').value.trim(),t2tag:document.getElementById('tc2').value,t3:document.getElementById('t3').value.trim(),t3tag:document.getElementById('tc3').value,blocks,protect,carry,flag,energyLevel:energy,pct:0};
+  const idx=teamPlans.findIndex(p=>p.name===name&&p.role===role);
+  if(idx>=0)teamPlans[idx]=plan; else teamPlans.unshift(plan);
+  const toast=document.getElementById('saved-toast');
+  toast.style.display='inline-flex';
+  setTimeout(()=>{toast.style.display='none';},2800);
+}
+
+// ── DASHBOARD ──
+function renderDashboard(){
+  const plans=getFilteredPlans();
+  // stats
+  const total=teamPlans.length;
+  const drained=teamPlans.filter(p=>p.energyLevel==='low').length;
+  const flagged=teamPlans.filter(p=>p.flag&&p.flag.trim()).length;
+  const riskCount=teamPlans.filter(p=>p.t1tag==='risk'||p.t2tag==='risk'||p.t3tag==='risk').length;
+  document.getElementById('db-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Plans submitted</div><div class="stat-sub">for ${fmtDate(tomorrow)}</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">${total-drained}</div><div class="stat-lbl">Ready to go</div><div class="stat-sub">good / okay energy</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:${drained?'var(--red)':'var(--text)'}">${drained}</div><div class="stat-lbl">Drained</div><div class="stat-sub">may need support</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:${flagged?'var(--amber)':'var(--text)'}">${flagged}</div><div class="stat-lbl">Team flags</div><div class="stat-sub">items to be aware of</div></div>`;
+  // team cards
+  const grid=document.getElementById('db-team-grid');
+  let html=plans.map(p=>{
+    const eBadge=p.energyLevel==='hi'?'<span class="mc-energy en-good">Good</span>':p.energyLevel==='okay'?'<span class="mc-energy en-okay">Okay</span>':p.energyLevel==='low'?'<span class="mc-energy en-low">Drained</span>':'<span class="mc-energy en-none">Not set</span>';
+    const pris=[{v:p.t1,tag:p.t1tag},{v:p.t2,tag:p.t2tag},{v:p.t3,tag:p.t3tag}].filter(x=>x.v);
+    const priHtml=pris.length?pris.map((x,i)=>`<div class="mc-priority"><span class="mc-p-num">0${i+1}</span><span>${x.v}${x.tag&&x.tag!==''?` <span class="tag tag-${x.tag}">${x.tag}</span>`:''}</span></div>`).join(''):`<div class="no-plan">No priorities set yet</div>`;
+    const flagHtml=p.flag&&p.flag.trim()?`<div class="mc-flag">🚩 ${p.flag}</div>`:'';
+    const protHtml=p.protect?`<div class="mc-protect">🛡 ${p.protect}</div>`:'';
+    const nameKey=p.name.replace(/\s/g,'_');
+    return `<div class="member-card" onclick="openDetail('${nameKey}')">
+      <div class="mc-header">
+        <div class="mc-top"><div><div class="mc-name">${p.name}</div><div class="mc-role">${p.role}</div></div>${eBadge}</div>
+      </div>
+      <div class="mc-body">
+        <div class="mc-priorities">${priHtml}</div>
+        ${flagHtml}${protHtml}
+      </div>
+    </div>`;
+  }).join('');
+  html+=`<div class="add-member-card" onclick="switchView('planner',document.querySelectorAll('.nav-tab')[0])">
+    <span style="font-size:24px">＋</span>
+    <span style="font-size:13px;font-weight:500">Add your plan</span>
+    <span style="font-size:12px">Fill in Option 1 →</span>
+  </div>`;
+  grid.innerHTML=html;
+}
+
+function getFilteredPlans(){
+  if(dbFilterMode==='drained') return teamPlans.filter(p=>p.energyLevel==='low');
+  if(dbFilterMode==='flagged') return teamPlans.filter(p=>p.flag&&p.flag.trim());
+  if(dbFilterMode==='risk') return teamPlans.filter(p=>p.t1tag==='risk'||p.t2tag==='risk'||p.t3tag==='risk');
+  return teamPlans;
+}
+
+function dbFilter(mode,btn){
+  dbFilterMode=mode;
+  document.querySelectorAll('.db-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashboard();
+}
+
+function openDetail(nameKey){
+  const p=teamPlans.find(x=>x.name.replace(/\s/g,'_')===nameKey);
+  if(!p)return;
+  const eName=p.energyLevel==='hi'?'Good':p.energyLevel==='okay'?'Okay':p.energyLevel==='low'?'Drained':'Not set';
+  const eCls=p.energyLevel==='hi'?'en-good':p.energyLevel==='okay'?'en-okay':p.energyLevel==='low'?'en-low':'en-none';
+  const blockHtml=p.blocks.filter(b=>b.v).map(b=>{
+    const dot=b.e==='focus'?'<span style="color:var(--green)">●</span>':b.e==='meet'?'<span style="color:var(--amber)">●</span>':b.e==='react'?'<span style="color:var(--red)">●</span>':'';
+    return `<div class="dm-block-row"><span class="dm-block-time">${b.t}</span>${dot}&nbsp;${b.v}</div>`;
+  }).join('');
+  const carryHtml=p.carry&&p.carry.length?p.carry.map(c=>`<div style="font-size:12px;color:var(--text2);padding:3px 0;border-bottom:1px solid var(--border)">${c}</div>`).join(''):'<span style="font-size:12px;color:var(--text3)">Nothing carried forward</span>';
+  document.getElementById('detail-modal').innerHTML=`
+    <div class="dm-head">
+      <div><div style="font-size:15px;font-weight:600">${p.name}</div><div style="font-size:12px;color:var(--text3)">${p.role}</div></div>
+      <button class="dm-close" onclick="closeDetail()">×</button>
+    </div>
+    <div class="dm-section">
+      <div class="dm-lbl">Top 3 priorities</div>
+      ${[{v:p.t1,tag:p.t1tag},{v:p.t2,tag:p.t2tag},{v:p.t3,tag:p.t3tag}].filter(x=>x.v).map((x,i)=>`<div style="font-size:13px;color:var(--text);padding:4px 0;border-bottom:1px solid var(--border)"><span style="font-size:10px;font-family:JetBrains Mono,monospace;color:var(--text3);margin-right:6px">0${i+1}</span>${x.v}${x.tag&&x.tag!==''?` <span class="tag tag-${x.tag}">${x.tag}</span>`:''}</div>`).join('')}
+    </div>
+    ${blockHtml?`<div class="dm-section"><div class="dm-lbl">Time blocks</div>${blockHtml}</div>`:''}
+    <div class="dm-section">
+      <div class="dm-lbl">Energy &amp; wellbeing</div>
+      <span class="mc-energy ${eCls}" style="display:inline-block;margin-bottom:8px">${eName}</span>
+      ${p.flag?`<div class="mc-flag" style="margin-top:6px">🚩 ${p.flag}</div>`:''}
+      ${p.protect?`<div class="mc-protect" style="margin-top:6px">🛡 Protecting: ${p.protect}</div>`:''}
+    </div>
+    <div class="dm-section"><div class="dm-lbl">Carried forward</div>${carryHtml}</div>`;
+  document.getElementById('detail-overlay').classList.add('open');
+}
+function closeDetail(e){
+  if(!e||e.target===document.getElementById('detail-overlay'))
+    document.getElementById('detail-overlay').classList.remove('open');
+}
+</script>
+</body>
+</html>
